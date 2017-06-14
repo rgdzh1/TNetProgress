@@ -32,7 +32,8 @@ public class WrapRequestBody extends RequestBody {
         mInfo.setContentLength(contentLength());
         WrapSink wrapSink = new WrapSink(sink, mInfo, mListener);
         BufferedSink buffer = Okio.buffer(wrapSink);
-        mRequestBody.writeTo(sink);
+        mRequestBody.writeTo(buffer);
+        buffer.flush();
     }
 
 }

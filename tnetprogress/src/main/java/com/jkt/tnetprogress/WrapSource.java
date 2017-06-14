@@ -1,20 +1,23 @@
 package com.jkt.tnetprogress;
 
+import android.util.Log;
+
 import java.io.IOException;
 
 import okio.Buffer;
+import okio.ForwardingSource;
 import okio.Source;
-import okio.Timeout;
 
 /**
  * Created by Allen at 2017/6/13 10:52
  */
-public class WrapSource implements Source {
+public class WrapSource extends ForwardingSource {
     private Source mSource;
     private ProgressInfo mInfo;
     private OnDownloadListener mListener;
 
     public WrapSource(Source source, ProgressInfo info, OnDownloadListener listener) {
+        super(source);
         mSource = source;
         mInfo = info;
         mListener = listener;
@@ -22,18 +25,14 @@ public class WrapSource implements Source {
 
     @Override
     public long read(Buffer sink, long byteCount) throws IOException {
-        mInfo.setCurrentLength(byteCount);
-        mListener.onDownLoadProgress(mInfo);
-        return mSource.read(sink,byteCount);
+        long read = super.read(sink, byteCount);
+        if (read != -1) {
+            long l = mInfo.getCurrentLength() + read;
+            Log.i("read", l + "-----" + mInfo.getContentLength());
+            mInfo.setCurrentLength(l);
+            mListener.onDownLoadProgress(mInfo);
+        }
+        return read;
     }
 
-    @Override
-    public Timeout timeout() {
-        return mSource.timeout();
-    }
-
-    @Override
-    public void close() throws IOException {
-          mSource.close();
-    }
 }

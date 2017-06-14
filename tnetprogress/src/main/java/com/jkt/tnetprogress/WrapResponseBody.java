@@ -1,6 +1,7 @@
 package com.jkt.tnetprogress;
 
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
@@ -14,6 +15,7 @@ public class WrapResponseBody extends ResponseBody {
     private ResponseBody mResponseBody;
     private OnDownloadListener mListener;
     private ProgressInfo mInfo;
+    private BufferedSource mBufferedSource;
 
     public WrapResponseBody(ResponseBody responseBody, ProgressInfo info, OnDownloadListener listener) {
         mResponseBody = responseBody;
@@ -29,13 +31,17 @@ public class WrapResponseBody extends ResponseBody {
 
     @Override
     public long contentLength() {
+        Log.i("read","length"+mResponseBody.contentLength());
         return mResponseBody.contentLength();
     }
 
     @Override
     public BufferedSource source() {
-        mInfo.setContentLength(contentLength());
-        WrapSource wrapSource = new WrapSource(mResponseBody.source(), mInfo, mListener);
-        return Okio.buffer(wrapSource);
+        if (mBufferedSource == null) {
+            mInfo.setContentLength(contentLength());
+            WrapSource wrapSource = new WrapSource(mResponseBody.source(), mInfo, mListener);
+            mBufferedSource = Okio.buffer(wrapSource);
+        }
+        return mBufferedSource;
     }
 }

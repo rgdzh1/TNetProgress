@@ -9,7 +9,7 @@
     tools:context="com.jkt.netprogress.MainActivity">
 
     <Button
-        android:onClick="btnDownland"
+        android:id="@+id/main_bn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="开始下载"/>
@@ -20,4 +20,8 @@
         android:text="Hello World!"
         android:textColor="@color/colorGray"
         android:textSize="15sp"/>
+    <ImageView
+        android:layout_width="wrap_content"
+        android:id="@+id/main_iv"
+        android:layout_height="wrap_content"/>
 </LinearLayout>

@@ -8,7 +8,7 @@ public class ProgressInfo {
     public String mTime;
     public long mContentLength;
     public long mCurrentLength;
-    public long mPercent;
+    public float mPercent;
 
     public String getUrl() {
         return mUrl;
@@ -42,8 +42,8 @@ public class ProgressInfo {
         mCurrentLength = currentLength;
     }
 
-    public long getPercent() {
-        return mContentLength==0?0:mCurrentLength/mContentLength;
+    public float getPercent() {
+        return mContentLength==0?0:mCurrentLength/(float)mContentLength;
     }
 
 }

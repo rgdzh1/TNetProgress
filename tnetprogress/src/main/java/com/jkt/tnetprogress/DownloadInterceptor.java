@@ -2,8 +2,8 @@ package com.jkt.tnetprogress;
 
 import java.io.IOException;
 
+import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
-import okhttp3.Request;
 import okhttp3.Response;
 
 /**
@@ -18,8 +18,7 @@ public class DownloadInterceptor implements Interceptor {
 
     @Override
     public Response intercept(Chain chain) throws IOException {
-        Request request = wrapRequest(chain.request());
-        Response response = wrapResponse(chain.proceed(request));
+        Response response = wrapResponse(chain.proceed(chain.request()));
         return response;
     }
 
@@ -27,18 +26,18 @@ public class DownloadInterceptor implements Interceptor {
         if (response == null || response.body() == null) {
             return response;
         }
-        Response.Builder builder = response.newBuilder();
-        ProgressInfo info = new ProgressInfo();
-        info.setTime(System.currentTimeMillis()+"");
-        builder.body(new WrapResponseBody(response.body(),info,mListener));
-        return response;
+        Response wrapResponse = getWrapResponse(response);
+        return wrapResponse;
     }
 
-    private Request wrapRequest(Request request) {
-        if (request == null || request.body() == null) {
-            return request;
-        }
-        return request;
+    private Response getWrapResponse(Response response) {
+        HttpUrl url = response.request().url();
+        ProgressInfo info = new ProgressInfo();
+        info.setTime(System.currentTimeMillis()+"");
+        info.setUrl(url.toString());
+        Response.Builder builder = response.newBuilder();
+        return builder.body(new WrapResponseBody(response.body(),info,mListener)).build();
     }
+
 
 }
