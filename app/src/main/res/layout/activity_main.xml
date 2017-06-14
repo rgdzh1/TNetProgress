@@ -9,19 +9,33 @@
     tools:context="com.jkt.netprogress.MainActivity">
 
     <Button
-        android:id="@+id/main_bn"
+        android:id="@+id/main_download_bn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="开始下载"/>
 
     <TextView
+        android:id="@+id/main_download_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Hello World!"
         android:textColor="@color/colorGray"
         android:textSize="15sp"/>
     <ImageView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_gravity="center"
         android:id="@+id/main_iv"
-        android:layout_height="wrap_content"/>
+        android:layout_height="200dp"/>
+    <Button
+        android:id="@+id/main_upload_bn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="上传"/>
+    <TextView
+        android:id="@+id/main_upload_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hello World!"
+        android:textColor="@color/colorGray"
+        android:textSize="15sp"/>
 </LinearLayout>

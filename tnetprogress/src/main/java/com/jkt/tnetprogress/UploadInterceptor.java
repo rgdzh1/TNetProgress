@@ -20,16 +20,10 @@ public class UploadInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = wrapRequest(chain.request());
-        Response response = wrapResponse(chain.proceed(request));
+        Response response = chain.proceed(request);
         return response;
     }
 
-    private Response wrapResponse(Response response) {
-        if (response == null || response.body() == null) {
-            return response;
-        }
-        return response;
-    }
 
     private Request wrapRequest(Request request) {
         if (request == null || request.body() == null) {
@@ -41,7 +35,7 @@ public class UploadInterceptor implements Interceptor {
         info.setUrl(url.toString());
         info.setTime(System.currentTimeMillis()+"");
         builder.method(request.method(),new WrapRequestBody(request.body(),info,mListener));
-        return request;
+        return builder.build();
     }
 
 }

@@ -1,5 +1,7 @@
 package com.jkt.tnetprogress;
 
+import android.util.Log;
+
 import java.io.IOException;
 
 import okio.Buffer;
@@ -21,7 +23,9 @@ public class WrapSink extends ForwardingSink{
     @Override
     public void write(Buffer source, long byteCount) throws IOException {
         super.write(source, byteCount);
-        mInfo.setCurrentLength(byteCount);
+        long l=mInfo.getCurrentLength()+byteCount;
+        mInfo.setCurrentLength(l);
+        Log.i("write",mInfo.getPercent()+" ");
         mListener.onUpLoadProgress(mInfo);
     }
 }

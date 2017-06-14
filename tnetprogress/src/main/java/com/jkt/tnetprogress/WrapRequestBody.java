@@ -28,6 +28,16 @@ public class WrapRequestBody extends RequestBody {
     }
 
     @Override
+    public long contentLength() throws IOException {
+        try {
+            return mRequestBody.contentLength();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+    @Override
     public void writeTo(BufferedSink sink) throws IOException {
         mInfo.setContentLength(contentLength());
         WrapSink wrapSink = new WrapSink(sink, mInfo, mListener);

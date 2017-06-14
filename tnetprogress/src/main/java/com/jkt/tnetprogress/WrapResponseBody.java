@@ -1,7 +1,6 @@
 package com.jkt.tnetprogress;
 
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
@@ -31,7 +30,6 @@ public class WrapResponseBody extends ResponseBody {
 
     @Override
     public long contentLength() {
-        Log.i("read","length"+mResponseBody.contentLength());
         return mResponseBody.contentLength();
     }
 
