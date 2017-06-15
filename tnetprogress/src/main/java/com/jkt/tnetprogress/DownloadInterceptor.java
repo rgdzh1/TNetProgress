@@ -2,7 +2,6 @@ package com.jkt.tnetprogress;
 
 import java.io.IOException;
 
-import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.Response;
 
@@ -31,10 +30,9 @@ public class DownloadInterceptor implements Interceptor {
     }
 
     private Response getWrapResponse(Response response) {
-        HttpUrl url = response.request().url();
         ProgressInfo info = new ProgressInfo();
         info.setTime(System.currentTimeMillis()+"");
-        info.setUrl(url.toString());
+        info.setUrl(response.request().url().toString());
         Response.Builder builder = response.newBuilder();
         return builder.body(new WrapResponseBody(response.body(),info,mListener)).build();
     }

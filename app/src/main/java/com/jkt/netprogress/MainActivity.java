@@ -35,7 +35,8 @@ public class MainActivity extends AppCompatActivity implements OnDownloadListene
     private Button mDownloadBN;
     private Button mUploadBN;
     private ImageView mIV;
-    private Bitmap mBitmap;
+    private String mDownloadUrl;
+    private String mUploadUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,17 +56,17 @@ public class MainActivity extends AppCompatActivity implements OnDownloadListene
 
     private void initObject() {
 
-        String downloadUrl = "https://github.com/HoldMyOwn/TDialog/blob/master/preview/all.gif?raw=true";
-        String uploadUrl = "http://v.polyv.net/uc/services/rest";
+        mDownloadUrl = "http://pic1.win4000.com/wallpaper/a/568cd27741af5.jpg";
+        mUploadUrl = "http://v.polyv.net/uc/services/rest";
         mDownRequest = new Request.Builder()
-                .url(downloadUrl)
+                .url(mDownloadUrl)
                 .build();
         mDownClient = new OkHttpClient.Builder()
                 .addNetworkInterceptor(new DownloadInterceptor(this))
                 .build();
         File file = getFromAssets("a.jpg");
         mUploadRequest = new Request.Builder()
-                .url(uploadUrl)
+                .url(mUploadUrl)
                 .post(RequestBody.create(MediaType.parse("multipart/form-data"), file))
                 .build();
         mUploadClient = new OkHttpClient.Builder()
@@ -119,7 +120,13 @@ public class MainActivity extends AppCompatActivity implements OnDownloadListene
                     //并没有进行字节的读取动作,内部的source的read方法也就不会执行,没有进度回调
                     Response response = mDownClient.newCall(mDownRequest).execute();
                     byte[] bytes = response.body().bytes();
-                    mBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                    final Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mIV.setImageBitmap(bitmap);
+                        }
+                    });
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -130,23 +137,28 @@ public class MainActivity extends AppCompatActivity implements OnDownloadListene
 
     @Override
     public void onDownLoadProgress(ProgressInfo info) {
-        if (info.getPercentFloat() == 1) {
-            mDownloadBN.setText("下载完成   总尺寸" + String.format("Size : %s", getFileSize(info.getContentLength())));
-            mDownloadBN.setEnabled(true);
-            mIV.setImageBitmap(mBitmap);
-            return;
+        //注意info的url不包含参数键值对,打印查看
+        if (mDownloadUrl.equals(info.getUrl())) {
+            if (info.getPercentFloat() == 1) {
+                mDownloadBN.setText("下载完成   总尺寸" + String.format("Size : %s", getFileSize(info.getContentLength())));
+                mDownloadBN.setEnabled(true);
+                return;
+            }
+            mDownloadBN.setText("下载:" + info.getPercentString());
         }
-        mDownloadBN.setText("下载:" + info.getPercentString());
     }
 
     @Override
     public void onUpLoadProgress(ProgressInfo info) {
-        if (info.getPercentFloat() == 1) {
-            mUploadBN.setText("上传完成   总尺寸" + String.format("Size : %s", getFileSize(info.getContentLength())));
-            mUploadBN.setEnabled(true);
-            return;
+        //注意info的url不包含参数键值对,打印查看
+        if (mUploadUrl.equals(info.getUrl())) {
+            if (info.getPercentFloat() == 1) {
+                mUploadBN.setText("上传完成   总尺寸" + String.format("Size : %s", getFileSize(info.getContentLength())));
+                mUploadBN.setEnabled(true);
+                return;
+            }
+            mUploadBN.setText("上传:" + info.getPercentString());
         }
-        mUploadBN.setText("上传:" + info.getPercentString());
     }
 
 

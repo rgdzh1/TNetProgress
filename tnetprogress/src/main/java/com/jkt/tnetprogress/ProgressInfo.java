@@ -4,7 +4,9 @@ package com.jkt.tnetprogress;
  * Created by Allen at 2017/6/13 17:27
  */
 public class ProgressInfo {
+    //路径url,不包含参数键值对,打印查看
     public String mUrl;
+    //调用时间
     public String mTime;
     //当前读、写长度
     public long mCurrentLength;
