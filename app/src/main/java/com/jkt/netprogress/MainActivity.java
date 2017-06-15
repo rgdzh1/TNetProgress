@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -99,8 +98,7 @@ public class MainActivity extends AppCompatActivity implements OnDownloadListene
             @Override
             public void run() {
                 try {
-                    Response response = mUploadClient.newCall(mUploadRequest).execute();
-                    Log.i("write", response.isSuccessful() + "   " + response.toString() + "  " + response.request().body().getClass());
+                    mUploadClient.newCall(mUploadRequest).execute();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -114,11 +112,11 @@ public class MainActivity extends AppCompatActivity implements OnDownloadListene
         mDownloadBN.setText("下载中...");
         mIV.setImageBitmap(null);
         new Thread(new Runnable() {
-
-
             @Override
             public void run() {
                 try {
+                    //注意必须对response的body获取字节或者文件,如果不做处理,那么默认是进行接口的连接.
+                    //并没有进行字节的读取动作,内部的source的read方法也就不会执行,没有进度回调
                     Response response = mDownClient.newCall(mDownRequest).execute();
                     byte[] bytes = response.body().bytes();
                     mBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
