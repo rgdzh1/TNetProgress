@@ -6,10 +6,10 @@
     android:layout_width="match_parent"
     android:orientation="vertical"
     android:layout_height="match_parent"
-    tools:context="com.jkt.netprogress.OkHttpActivity">
+    tools:context="com.jkt.netprogress.okhttp.OkHttpActivity">
 
     <Button
-        android:id="@+id/main_download_bn"
+        android:id="@+id/okHttp_download_bn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="开始下载"/>
@@ -17,10 +17,10 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_gravity="center"
-        android:id="@+id/main_iv"
+        android:id="@+id/okHttp_iv"
         android:layout_height="200dp"/>
     <Button
-        android:id="@+id/main_upload_bn"
+        android:id="@+id/okHttp_upload_bn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="上传"/>

@@ -1,4 +1,4 @@
-package com.jkt.netprogress;
+package com.jkt.netprogress.okhttp;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,6 +8,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import com.jkt.netprogress.FileUtil;
+import com.jkt.netprogress.R;
 import com.jkt.tnetprogress.DownloadInterceptor;
 import com.jkt.tnetprogress.OnDownloadListener;
 import com.jkt.tnetprogress.OnUploadListener;
@@ -15,10 +17,7 @@ import com.jkt.tnetprogress.ProgressInfo;
 import com.jkt.tnetprogress.UploadInterceptor;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.text.DecimalFormat;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -49,9 +48,9 @@ public class OkHttpActivity extends AppCompatActivity implements OnDownloadListe
 
     private void initViews() {
         setContentView(R.layout.activity_okhttp);
-        mDownloadBN = (Button) findViewById(R.id.main_download_bn);
-        mIV = (ImageView) findViewById(R.id.main_iv);
-        mUploadBN = (Button) findViewById(R.id.main_upload_bn);
+        mDownloadBN = (Button) findViewById(R.id.okHttp_download_bn);
+        mIV = (ImageView) findViewById(R.id.okHttp_iv);
+        mUploadBN = (Button) findViewById(R.id.okHttp_upload_bn);
     }
 
     private void initObject() {
@@ -64,7 +63,7 @@ public class OkHttpActivity extends AppCompatActivity implements OnDownloadListe
         mDownClient = new OkHttpClient.Builder()
                 .addNetworkInterceptor(new DownloadInterceptor(this))
                 .build();
-        File file = getFromAssets("a.jpg");
+        File file = FileUtil.getFromAssets(this,"a.jpg");
         mUploadRequest = new Request.Builder()
                 .url(mUploadUrl)
                 .post(RequestBody.create(MediaType.parse("multipart/form-data"), file))
@@ -83,10 +82,10 @@ public class OkHttpActivity extends AppCompatActivity implements OnDownloadListe
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.main_download_bn:
+            case R.id.okHttp_download_bn:
                 downland();
                 break;
-            case R.id.main_upload_bn:
+            case R.id.okHttp_upload_bn:
                 upload();
                 break;
         }
@@ -140,7 +139,7 @@ public class OkHttpActivity extends AppCompatActivity implements OnDownloadListe
         //注意info的url不包含参数键值对,打印查看
         if (mDownloadUrl.equals(info.getUrl())) {
             if (info.getPercentFloat() == 1) {
-                mDownloadBN.setText("下载完成   总尺寸" + String.format("Size : %s", getFileSize(info.getContentLength())));
+                mDownloadBN.setText("下载完成   总尺寸" + String.format("Size : %s", FileUtil.getFileSize(info.getContentLength())));
                 mDownloadBN.setEnabled(true);
                 return;
             }
@@ -153,7 +152,7 @@ public class OkHttpActivity extends AppCompatActivity implements OnDownloadListe
         //注意info的url不包含参数键值对,打印查看
         if (mUploadUrl.equals(info.getUrl())) {
             if (info.getPercentFloat() == 1) {
-                mUploadBN.setText("上传完成   总尺寸" + String.format("Size : %s", getFileSize(info.getContentLength())));
+                mUploadBN.setText("上传完成   总尺寸" + String.format("Size : %s", FileUtil.getFileSize(info.getContentLength())));
                 mUploadBN.setEnabled(true);
                 return;
             }
@@ -162,30 +161,5 @@ public class OkHttpActivity extends AppCompatActivity implements OnDownloadListe
     }
 
 
-    public File getFromAssets(String fileName) {
-        File file = new File(getCacheDir(), "a.gif");
-        try {
-            InputStream inputStream = getResources().getAssets().open(fileName);
-            FileOutputStream outputStream = new FileOutputStream(file);
-            byte[] bytes = new byte[8 * 1024];
-            int length = 0;
-            while ((length = inputStream.read(bytes)) != -1) {
-                outputStream.write(bytes, 0, length);
-                outputStream.flush();
-            }
-            outputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return file;
-    }
 
-    public static String getFileSize(long size) {
-        if (size <= 0) {
-            return "0";
-        }
-        final String[] units = new String[]{"B", "KB", "MB", "GB", "TB"};
-        int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
-        return new DecimalFormat("#,###.#").format(size / Math.pow(1024, digitGroups)) + " " + units[digitGroups];
-    }
 }
