@@ -6,9 +6,10 @@ package com.jkt.tnetprogress;
 public class ProgressInfo {
     public String mUrl;
     public String mTime;
-    public long mContentLength;
+    //当前读、写长度
     public long mCurrentLength;
-    public float mPercent;
+    //总文件长度
+    public long mContentLength;
 
     public String getUrl() {
         return mUrl;
@@ -42,8 +43,15 @@ public class ProgressInfo {
         mCurrentLength = currentLength;
     }
 
-    public float getPercent() {
-        return mContentLength==0?0:mCurrentLength/(float)mContentLength;
+    public String getPercentString() {
+        int i = 0;
+        if (mContentLength == 0 || mContentLength == -1) {
+            return "0%";
+        }
+        i = (int) (mCurrentLength / (float) mContentLength * 100);
+        return i + "%";
     }
-
+   public float  getPercentFloat(){
+       return mContentLength == 0 || mContentLength == -1?0:mCurrentLength/(float)mContentLength;
+   }
 }

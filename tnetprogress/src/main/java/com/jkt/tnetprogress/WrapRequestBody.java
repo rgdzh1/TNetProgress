@@ -15,6 +15,7 @@ public class WrapRequestBody extends RequestBody {
     private OnUploadListener mListener;
     private ProgressInfo mInfo;
 
+
     public WrapRequestBody(RequestBody requestBody, ProgressInfo info, OnUploadListener listener) {
         mRequestBody = requestBody;
         mListener = listener;
@@ -45,5 +46,4 @@ public class WrapRequestBody extends RequestBody {
         mRequestBody.writeTo(buffer);
         buffer.flush();
     }
-
 }

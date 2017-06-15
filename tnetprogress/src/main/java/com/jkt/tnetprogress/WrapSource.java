@@ -1,6 +1,7 @@
 package com.jkt.tnetprogress;
 
-import android.util.Log;
+import android.os.Handler;
+import android.os.Looper;
 
 import java.io.IOException;
 
@@ -12,6 +13,7 @@ import okio.Source;
  * Created by Allen at 2017/6/13 10:52
  */
 public class WrapSource extends ForwardingSource {
+    private Handler mHandler = new Handler(Looper.getMainLooper());
     private Source mSource;
     private ProgressInfo mInfo;
     private OnDownloadListener mListener;
@@ -28,9 +30,13 @@ public class WrapSource extends ForwardingSource {
         long read = super.read(sink, byteCount);
         if (read != -1) {
             long l = mInfo.getCurrentLength() + read;
-            Log.i("read", l + "-----" + mInfo.getContentLength());
             mInfo.setCurrentLength(l);
-            mListener.onDownLoadProgress(mInfo);
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    mListener.onDownLoadProgress(mInfo);
+                }
+            });
         }
         return read;
     }

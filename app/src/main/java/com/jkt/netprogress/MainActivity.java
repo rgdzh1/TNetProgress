@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.jkt.tnetprogress.DownloadInterceptor;
 import com.jkt.tnetprogress.OnDownloadListener;
@@ -20,6 +19,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -30,14 +30,13 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity implements OnDownloadListener, View.OnClickListener, OnUploadListener {
 
     private OkHttpClient mDownClient;
-    private Request mDownRequest;
-    private Button mDownloadBN;
-    private ImageView mIV;
-    private Request mUploadRequest;
-    private TextView mUploadTV;
     private OkHttpClient mUploadClient;
-    private TextView mDownloadTV;
+    private Request mDownRequest;
+    private Request mUploadRequest;
+    private Button mDownloadBN;
     private Button mUploadBN;
+    private ImageView mIV;
+    private Bitmap mBitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,13 +50,12 @@ public class MainActivity extends AppCompatActivity implements OnDownloadListene
     private void initViews() {
         setContentView(R.layout.activity_main);
         mDownloadBN = (Button) findViewById(R.id.main_download_bn);
-        mDownloadTV = (TextView) findViewById(R.id.main_download_tv);
         mIV = (ImageView) findViewById(R.id.main_iv);
         mUploadBN = (Button) findViewById(R.id.main_upload_bn);
-        mUploadTV = (TextView) findViewById(R.id.main_upload_tv);
     }
 
     private void initObject() {
+
         String downloadUrl = "https://github.com/HoldMyOwn/TDialog/blob/master/preview/all.gif?raw=true";
         String uploadUrl = "http://v.polyv.net/uc/services/rest";
         mDownRequest = new Request.Builder()
@@ -95,50 +93,31 @@ public class MainActivity extends AppCompatActivity implements OnDownloadListene
     }
 
     private void upload() {
-         new Thread(new Runnable() {
-             @Override
-             public void run() {
-                 runOnUiThread(new Runnable() {
-                     @Override
-                     public void run() {
-                         mUploadBN.setEnabled(false);
-                         mUploadBN.setText("上传中...");
-                     }
-                 });
-                 try {
-                     Response response = mUploadClient.newCall(mUploadRequest).execute();
-                     Log.i("write",response.isSuccessful()+"   "+response.toString()+"  "+response.request().body().getClass());
-                 } catch (IOException e) {
-                     e.printStackTrace();
-                 }
-                 runOnUiThread(new Runnable() {
-                     @Override
-                     public void run() {
-                         mUploadBN.setEnabled(true);
-                         mUploadBN.setText("上传完成");
-                     }
-                 });
-             }
-         }).start();
+        mUploadBN.setEnabled(false);
+        mUploadBN.setText("上传中...");
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Response response = mUploadClient.newCall(mUploadRequest).execute();
+                    Log.i("write", response.isSuccessful() + "   " + response.toString() + "  " + response.request().body().getClass());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
 
     public void downland() {
-
+        mDownloadBN.setEnabled(false);
+        mDownloadBN.setText("下载中...");
+        mIV.setImageBitmap(null);
         new Thread(new Runnable() {
 
-            private Bitmap mBitmap;
 
             @Override
             public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mDownloadBN.setEnabled(false);
-                        mDownloadBN.setText("下载中...");
-                        mIV.setImageBitmap(null);
-                    }
-                });
                 try {
                     Response response = mDownClient.newCall(mDownRequest).execute();
                     byte[] bytes = response.body().bytes();
@@ -146,16 +125,30 @@ public class MainActivity extends AppCompatActivity implements OnDownloadListene
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mIV.setImageBitmap(mBitmap);
-                        mDownloadBN.setText("下载完成");
-                        mDownloadBN.setEnabled(true);
-                    }
-                });
             }
         }).start();
+    }
+
+
+    @Override
+    public void onDownLoadProgress(ProgressInfo info) {
+        if (info.getPercentFloat() == 1) {
+            mDownloadBN.setText("下载完成   总尺寸" + String.format("Size : %s", getFileSize(info.getContentLength())));
+            mDownloadBN.setEnabled(true);
+            mIV.setImageBitmap(mBitmap);
+            return;
+        }
+        mDownloadBN.setText("下载:" + info.getPercentString());
+    }
+
+    @Override
+    public void onUpLoadProgress(ProgressInfo info) {
+        if (info.getPercentFloat() == 1) {
+            mUploadBN.setText("上传完成   总尺寸" + String.format("Size : %s", getFileSize(info.getContentLength())));
+            mUploadBN.setEnabled(true);
+            return;
+        }
+        mUploadBN.setText("上传:" + info.getPercentString());
     }
 
 
@@ -177,14 +170,12 @@ public class MainActivity extends AppCompatActivity implements OnDownloadListene
         return file;
     }
 
-    @Override
-    public void onDownLoadProgress(ProgressInfo info) {
-        Log.i("progressInfo", "down  " + info.getCurrentLength() + "----" + info.getContentLength() + "----" + info.getPercent());
-    }
-
-    @Override
-    public void onUpLoadProgress(ProgressInfo info) {
-        Log.i("progressInfo", "up  "+ info.getCurrentLength() + "----" + info.getContentLength() + "----" + info.getPercent());
-
+    public static String getFileSize(long size) {
+        if (size <= 0) {
+            return "0";
+        }
+        final String[] units = new String[]{"B", "KB", "MB", "GB", "TB"};
+        int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
+        return new DecimalFormat("#,###.#").format(size / Math.pow(1024, digitGroups)) + " " + units[digitGroups];
     }
 }
