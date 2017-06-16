@@ -41,7 +41,7 @@ public class HttpMethods {
         return mIApi;
     }
 
-    private IApi getDownloadApi(UploadInterceptor interceptor) {
+    private IApi getUploadApi(UploadInterceptor interceptor) {
         mIApi = initRetrofit(interceptor).create(IApi.class);
         return mIApi;
     }
@@ -81,7 +81,7 @@ public class HttpMethods {
 
     //上传
     public Subscription getUpload(Subscriber subscriber, RequestBody requestBody, UploadInterceptor interceptor) {
-        return getDownloadApi(interceptor).getUpload(requestBody).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(subscriber);
+        return getUploadApi(interceptor).getUpload(requestBody).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(subscriber);
     }
 }
 
