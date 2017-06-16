@@ -39,7 +39,7 @@ publish {
     userOrg = 'jkt'
     groupId = 'com.jkt'
     artifactId = 'tnetprogress'
-    publishVersion = '1.0.0'
+    publishVersion = '1.0.1'
     desc = 'Oh hi, this is a nice netProgress util for an android project, right?'
     website = 'https://github.com/HoldMyOwn'
 }
