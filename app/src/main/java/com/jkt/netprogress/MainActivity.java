@@ -13,12 +13,12 @@ import com.jkt.netprogress.retrofit.RetrofitActivity;
  */
 public class MainActivity extends AppCompatActivity {
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        //无论那种方式,关键是配置OkHttp的拦截器,一个是new DownloadInterceptor(this)
+        //另一个是  new UploadInterceptor(this)
     }
 
 

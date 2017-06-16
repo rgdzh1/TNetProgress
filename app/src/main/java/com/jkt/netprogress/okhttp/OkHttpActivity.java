@@ -40,6 +40,8 @@ public class OkHttpActivity extends AppCompatActivity implements OnDownloadListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //无论下载上传家监听,都是配置OkHttp的拦截器,一个是new DownloadInterceptor(this)
+        //另一个是  new UploadInterceptor(this)
         initViews();
         initObject();
         initListeners();
