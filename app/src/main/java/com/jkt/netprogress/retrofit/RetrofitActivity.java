@@ -1,7 +1,10 @@
 package com.jkt.netprogress.retrofit;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -15,9 +18,11 @@ import com.jkt.tnetprogress.ProgressInfo;
 import com.jkt.tnetprogress.UploadInterceptor;
 
 import java.io.File;
+import java.io.IOException;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import rx.Subscriber;
 
 public class RetrofitActivity extends AppCompatActivity implements View.OnClickListener, OnDownloadListener, OnUploadListener {
@@ -69,20 +74,35 @@ public class RetrofitActivity extends AppCompatActivity implements View.OnClickL
     private void downland() {
 
         HttpMethods.getInstance()
-                  .getDownload(new Subscriber<String>() {
+                  .getDownload(new Subscriber<ResponseBody>() {
+                      @Override
+                      public void onStart() {
+                          super.onStart();
+                          mDownloadBN.setEnabled(false);
+                          mIV.setImageBitmap(null);
+                      }
+
                       @Override
                       public void onCompleted() {
+                          Log.i("read","completed  ");
 
                       }
 
                       @Override
                       public void onError(Throwable e) {
-
+                          Log.i("read","download  error"+e.toString());
                       }
 
                       @Override
-                      public void onNext(String s) {
-
+                      public void onNext(ResponseBody body) {
+                          try {
+                              Log.i("read","next");
+                              byte[]  bytes = body.bytes();
+                              Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                              mIV.setImageBitmap(bitmap);
+                          } catch (IOException e) {
+                              e.printStackTrace();
+                          }
                       }
                   },new DownloadInterceptor(this));
     }
@@ -90,19 +110,29 @@ public class RetrofitActivity extends AppCompatActivity implements View.OnClickL
     private void upload() {
         File file = FileUtil.getFromAssets(this,"a.jpg");
         RequestBody body = RequestBody.create(MediaType.parse("multipart/form-data"), file);
-       HttpMethods.getInstance().getUpload(new Subscriber<String>() {
+        //因为上传的路径、参数并不正确,所以会走失败,这里主要演示获取进度
+       HttpMethods.getInstance().getUpload(new Subscriber<okhttp3.Response>() {
+           @Override
+           public void onStart() {
+               super.onStart();
+               mUploadBN.setEnabled(false);
+           }
+
            @Override
            public void onCompleted() {
+               Log.i("write","completed  ");
 
            }
 
            @Override
            public void onError(Throwable e) {
+               Log.i("write","upload error   "+e.toString());
 
            }
 
            @Override
-           public void onNext(String s) {
+           public void onNext(okhttp3.Response s) {
+               Log.i("write","upload next");
 
            }
        },body,new UploadInterceptor(this));
@@ -111,6 +141,7 @@ public class RetrofitActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onDownLoadProgress(ProgressInfo info) {
         //注意info的url不包含参数键值对,打印查看
+        Log.i("read","progress"+info.getCurrentLength()+"   "+info.getContentLength());
         if (mDownloadUrl.equals(info.getUrl())) {
             if (info.getPercentFloat() == 1) {
                 mDownloadBN.setText("下载完成   总尺寸" + String.format("Size : %s", FileUtil.getFileSize(info.getContentLength())));

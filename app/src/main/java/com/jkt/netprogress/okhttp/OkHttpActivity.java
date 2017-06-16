@@ -92,6 +92,7 @@ public class OkHttpActivity extends AppCompatActivity implements OnDownloadListe
     }
 
     private void upload() {
+        //因为上传的路径、参数并不正确,  response.isSuccessful()为false,这里主要演示获取进度
         mUploadBN.setEnabled(false);
         mUploadBN.setText("上传中...");
         new Thread(new Runnable() {

@@ -1,6 +1,7 @@
 package com.jkt.netprogress.retrofit;
 
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
@@ -11,9 +12,9 @@ import rx.Observable;
  */
 public interface IApi {
     @GET("wallpaper/a/568cd27741af5.jpg")
-    public Observable<String> getDownload();
+    public Observable<ResponseBody> getDownload();
 
     @POST("uc/services/rest")
-    public Observable<String> getUpload(@Body RequestBody requestBody);
+    public Observable<ResponseBody> getUpload(@Body RequestBody requestBody);
 
 }

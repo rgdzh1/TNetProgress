@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 import retrofit2.Retrofit;
-import retrofit2.converter.scalars.ScalarsConverterFactory;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -55,7 +55,7 @@ public class HttpMethods {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://pic1.win4000.com/")
                 .client(okHttpClient)
-                .addConverterFactory(ScalarsConverterFactory.create()) //
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
         return retrofit;
     }
@@ -69,18 +69,18 @@ public class HttpMethods {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://v.polyv.net/")
                 .client(okHttpClient)
-                .addConverterFactory(ScalarsConverterFactory.create()) //
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
         return retrofit;
     }
 
     //下载
-    public Subscription getDownload(Subscriber<String> subscriber, DownloadInterceptor interceptor) {
+    public Subscription getDownload(Subscriber subscriber, DownloadInterceptor interceptor) {
         return getDownloadApi(interceptor).getDownload().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(subscriber);
     }
 
     //上传
-    public Subscription getUpload(Subscriber<String> subscriber, RequestBody requestBody, UploadInterceptor interceptor) {
+    public Subscription getUpload(Subscriber subscriber, RequestBody requestBody, UploadInterceptor interceptor) {
         return getDownloadApi(interceptor).getUpload(requestBody).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(subscriber);
     }
 }
