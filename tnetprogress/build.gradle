@@ -6,7 +6,7 @@ android {
     buildToolsVersion "25.0.2"
 
     defaultConfig {
-        minSdkVersion 15
+        minSdkVersion 9
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -39,7 +39,7 @@ publish {
     userOrg = 'jkt'
     groupId = 'com.jkt'
     artifactId = 'tnetprogress'
-    publishVersion = '1.0.1'
+    publishVersion = '1.0.2'
     desc = 'Oh hi, this is a nice netProgress util for an android project, right?'
     website = 'https://github.com/HoldMyOwn'
 }

@@ -47,5 +47,5 @@
 
 ###   具体细节用法,下载查看Demo
 ###   模板依赖:&nbsp;&nbsp;项目里面的tnetprogress模板(可更加灵活扩展)
-###   gradle依赖:&nbsp;&nbsp;&nbsp;compile&nbsp;'com.jkt:tnetprogress:1.0.1'
+###   gradle依赖:&nbsp;&nbsp;&nbsp;compile&nbsp;'com.jkt:tnetprogress:1.0.2'
 
