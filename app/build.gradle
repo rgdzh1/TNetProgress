@@ -30,7 +30,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.3.1'
     testCompile 'junit:junit:4.12'
     compile 'com.squareup.okhttp3:okhttp:3.8.0'
-    compile  project(':tnetprogress')
+    compile 'com.jkt:tnetprogress:1.0.3'
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
     compile 'io.reactivex:rxjava:1.2.2'
     compile 'io.reactivex:rxandroid:1.2.1'
