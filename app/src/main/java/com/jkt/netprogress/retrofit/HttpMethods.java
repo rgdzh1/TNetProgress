@@ -53,7 +53,7 @@ public class HttpMethods {
                 .connectTimeout(5, TimeUnit.SECONDS)//设置超时时间
                 .build();
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://pic1.win4000.com/")
+                .baseUrl("https://timgsa.baidu.com/")
                 .client(okHttpClient)
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();

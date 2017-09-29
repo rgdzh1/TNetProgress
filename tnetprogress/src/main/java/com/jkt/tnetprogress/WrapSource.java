@@ -17,12 +17,14 @@ public class WrapSource extends ForwardingSource {
     private Source mSource;
     private ProgressInfo mInfo;
     private OnDownloadListener mListener;
+    private boolean mDoProgress;
 
-    public WrapSource(Source source, ProgressInfo info, OnDownloadListener listener) {
+    public WrapSource(Source source, ProgressInfo info, OnDownloadListener listener, boolean doProgress) {
         super(source);
         mSource = source;
         mInfo = info;
         mListener = listener;
+        mDoProgress = doProgress;
     }
 
     @Override
@@ -34,7 +36,9 @@ public class WrapSource extends ForwardingSource {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    mListener.onDownLoadProgress(mInfo);
+                    if (mDoProgress) {
+                        mListener.onDownLoadProgress(mInfo);
+                    }
                 }
             });
         }

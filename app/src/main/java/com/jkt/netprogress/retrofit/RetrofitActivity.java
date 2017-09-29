@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.jkt.netprogress.FileUtil;
 import com.jkt.netprogress.R;
@@ -44,17 +45,24 @@ public class RetrofitActivity extends AppCompatActivity implements View.OnClickL
     }
 
 
-
     private void initViews() {
         setContentView(R.layout.activity_retrofit);
         mDownloadBN = (Button) findViewById(R.id.retrofit_download_bn);
         mIV = (ImageView) findViewById(R.id.retrofit_iv);
         mUploadBN = (Button) findViewById(R.id.retrofit_upload_bn);
     }
+
     private void initObjects() {
-        mDownloadUrl = "http://pic1.win4000.com/wallpaper/a/568cd27741af5.jpg";
+        //59行url对应图片获取长度失败,可以做失败测试
+        //失败原因服务器走了gzip压缩导致content-length为-1,会走长度获取失败回调
+        //避免压缩方法,request添加头信息.key=Accept-Encoding value=identity
+        //mDownloadUrl = "http://pic1.win4000.com/wallpaper/a/568cd27741af5.jpg";
+        //2017-9-29日期,mDownloadUrl长度可以获取成功,如果失败则回调长度失败回调并且终止进度回调
+        //如果mDownloadUrl在你测试情况下获取长度失败,你可以换取图片尝试获得相关进度信息.
+        mDownloadUrl = "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506664930570&di=6dace2ed4c25580c7446a4ef0807b928&imgtype=0&src=http%3A%2F%2Fpic1.win4000.com%2Fwallpaper%2F6%2F57eb31505b1fd.jpg";
         mUploadUrl = "http://v.polyv.net/uc/services/rest";
     }
+
     private void initListeners() {
         mDownloadBN.setOnClickListener(this);
         mUploadBN.setOnClickListener(this);
@@ -74,77 +82,82 @@ public class RetrofitActivity extends AppCompatActivity implements View.OnClickL
 
 
     private void downland() {
-
         HttpMethods.getInstance()
-                  .getDownload(new Subscriber<ResponseBody>() {
-                      @Override
-                      public void onStart() {
-                          super.onStart();
-                          mDownloadBN.setEnabled(false);
-                          mIV.setImageBitmap(null);
-                      }
+                .getDownload(new Subscriber<ResponseBody>() {
+                    @Override
+                    public void onStart() {
+                        super.onStart();
+                        mDownloadBN.setEnabled(false);
+                        mIV.setImageBitmap(null);
+                    }
 
-                      @Override
-                      public void onCompleted() {
-                          Log.i("read","completed  ");
+                    @Override
+                    public void onCompleted() {
+                        Log.i("read", "completed  ");
 
-                      }
+                    }
 
-                      @Override
-                      public void onError(Throwable e) {
-                          Log.i("read","download  error"+e.toString());
-                      }
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.i("read", "download  error" + e.toString());
+                    }
 
-                      @Override
-                      public void onNext(ResponseBody body) {
-                          try {
-                              Log.i("read","next");
-                              byte[]  bytes = body.bytes();
-                              Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                              mIV.setImageBitmap(bitmap);
-                          } catch (IOException e) {
-                              e.printStackTrace();
-                          }
-                      }
-                  },new DownloadInterceptor(this));
+                    @Override
+                    public void onNext(ResponseBody body) {
+                        try {
+                            Log.i("read", "next");
+                            byte[] bytes = body.bytes();
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                            mIV.setImageBitmap(bitmap);
+                            mDownloadBN.setEnabled(true);
+                            mDownloadBN.setText("下载");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },  new DownloadInterceptor(this));
     }
 
     private void upload() {
-        File file = FileUtil.getFromAssets(this,"a.jpg");
+        File file = FileUtil.getFromAssets(this, "a.jpg");
         RequestBody body = RequestBody.create(MediaType.parse("multipart/form-data"), file);
         //因为上传的路径、参数并不正确,所以会走失败,这里主要演示获取进度
-       HttpMethods.getInstance().getUpload(new Subscriber<okhttp3.Response>() {
-           @Override
-           public void onStart() {
-               super.onStart();
-               mUploadBN.setEnabled(false);
-           }
+        HttpMethods.getInstance().getUpload(new Subscriber<okhttp3.Response>() {
+            @Override
+            public void onStart() {
+                super.onStart();
+                mUploadBN.setEnabled(false);
+            }
 
-           @Override
-           public void onCompleted() {
-               Log.i("write","completed  ");
+            @Override
+            public void onCompleted() {
+                Log.i("write", "completed  ");
 
-           }
+            }
 
-           @Override
-           public void onError(Throwable e) {
-               Log.i("write","upload error   "+e.toString());
+            @Override
+            public void onError(Throwable e) {
+                Log.i("write", "upload error   " + e.toString());
+                //因为路径和参数等不正确 所以会走失败回调,这边是模拟操作
+                mUploadBN.setEnabled(true);
+                mUploadBN.setText("上传");
+            }
 
-           }
+            @Override
+            public void onNext(okhttp3.Response s) {
+                Log.i("write", "upload next");
+                mUploadBN.setEnabled(true);
+                mUploadBN.setText("上传");
 
-           @Override
-           public void onNext(okhttp3.Response s) {
-               Log.i("write","upload next");
-
-           }
-       },body,new UploadInterceptor(this));
+            }
+        }, body, new UploadInterceptor(this));
     }
 
     @Override
     public void onDownLoadProgress(ProgressInfo info) {
-        //注意info的url不包含参数键值对,打印查看
-        Log.i("read","progress"+info.getCurrentLength()+"   "+info.getContentLength());
-        if (mDownloadUrl.equals(info.getUrl())) {
+        Log.i("onDownLoadProgress", " " + info.getUrl());
+        //注意info的url不包含参数键值对(所以contains比equal方法更合适),打印查看
+        if (mDownloadUrl.contains(info.getUrl())) {
             if (info.getPercentFloat() == 1) {
                 mDownloadBN.setText("下载完成   总尺寸" + String.format("Size : %s", FileUtil.getFileSize(info.getContentLength())));
                 mDownloadBN.setEnabled(true);
@@ -155,15 +168,36 @@ public class RetrofitActivity extends AppCompatActivity implements View.OnClickL
     }
 
     @Override
+    public void onDownLoadGetContentLengthFail(ProgressInfo info) {
+        Toast.makeText(this, "获取进度失败", Toast.LENGTH_SHORT).show();
+        //注意info的url不包含参数键值对(所以contains比equal方法更合适),打印查看
+        if (mDownloadUrl.contains(info.getUrl())) {
+            //toast在发版时候应该去掉
+            Toast.makeText(this, "获取进度失败", Toast.LENGTH_SHORT).show();
+            mDownloadBN.setText("下载中...");
+        }
+    }
+
+    @Override
     public void onUpLoadProgress(ProgressInfo info) {
-        //注意info的url不包含参数键值对,打印查看
-        if (mUploadUrl.equals(info.getUrl())) {
+        //注意info的url不包含参数键值对(所以contains比equal方法更合适),打印查看
+        if (mUploadUrl.contains(info.getUrl())) {
             if (info.getPercentFloat() == 1) {
                 mUploadBN.setText("上传完成   总尺寸" + String.format("Size : %s", FileUtil.getFileSize(info.getContentLength())));
                 mUploadBN.setEnabled(true);
                 return;
             }
             mUploadBN.setText("上传:" + info.getPercentString());
+        }
+    }
+
+    @Override
+    public void onUploadGetContentLengthFail(ProgressInfo info) {
+        //注意info的url不包含参数键值对(所以contains比equal方法更合适),打印查看
+        if (mUploadUrl.contains(info.getUrl())) {
+            //toast在发版时候应该去掉
+            Toast.makeText(this, "获取上传进度失败", Toast.LENGTH_SHORT).show();
+            mUploadBN.setText("上传中...");
         }
     }
 

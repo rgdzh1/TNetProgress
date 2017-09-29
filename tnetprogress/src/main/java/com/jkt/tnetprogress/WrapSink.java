@@ -2,7 +2,6 @@ package com.jkt.tnetprogress;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import java.io.IOException;
 
@@ -17,11 +16,13 @@ public class WrapSink extends ForwardingSink {
     private Handler mHandler = new Handler(Looper.getMainLooper());
     public OnUploadListener mListener;
     public ProgressInfo mInfo;
+    public boolean mDoProgress;
 
-    public WrapSink(Sink delegate, ProgressInfo info, OnUploadListener listener) {
+    public WrapSink(Sink delegate, ProgressInfo info, OnUploadListener listener, boolean doProgress) {
         super(delegate);
         mInfo = info;
         mListener = listener;
+        mDoProgress = doProgress;
     }
 
     @Override
@@ -32,7 +33,9 @@ public class WrapSink extends ForwardingSink {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                mListener.onUpLoadProgress(mInfo);
+                if (mDoProgress) {
+                    mListener.onUpLoadProgress(mInfo);
+                }
             }
         });
     }

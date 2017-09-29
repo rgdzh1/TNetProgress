@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.jkt.netprogress.FileUtil;
 import com.jkt.netprogress.R;
@@ -56,16 +57,23 @@ public class OkHttpActivity extends AppCompatActivity implements OnDownloadListe
     }
 
     private void initObject() {
-
-        mDownloadUrl = "http://pic1.win4000.com/wallpaper/a/568cd27741af5.jpg";
+        //63行url对应图片获取长度失败,可以做失败测试
+        //失败原因服务器走了gzip压缩导致content-length为-1,会走长度获取失败回调
+        //避免压缩方法,request添加头信息.key=Accept-Encoding value=identity
+//        mDownloadUrl = "http://pic1.win4000.com/wallpaper/a/568cd27741af5.jpg";
+        //2017-9-29日期,mDownloadUrl长度可以获取成功,如果失败则回调长度失败回调并且终止进度回调
+        //如果mDownloadUrl在你测试情况下获取长度失败,你可以换取图片尝试获得相关进度信息.
+        mDownloadUrl = "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506664930570&di=6dace2ed4c25580c7446a4ef0807b928&imgtype=0&src=http%3A%2F%2Fpic1.win4000.com%2Fwallpaper%2F6%2F57eb31505b1fd.jpg";
         mUploadUrl = "http://v.polyv.net/uc/services/rest";
         mDownRequest = new Request.Builder()
                 .url(mDownloadUrl)
+                //下面注释要求不进行zip压缩
+//                .addHeader("Accept-Encoding","identity")
                 .build();
         mDownClient = new OkHttpClient.Builder()
                 .addNetworkInterceptor(new DownloadInterceptor(this))
                 .build();
-        File file = FileUtil.getFromAssets(this,"a.jpg");
+        File file = FileUtil.getFromAssets(this, "a.jpg");
         mUploadRequest = new Request.Builder()
                 .url(mUploadUrl)
                 .post(RequestBody.create(MediaType.parse("multipart/form-data"), file))
@@ -102,9 +110,17 @@ public class OkHttpActivity extends AppCompatActivity implements OnDownloadListe
             public void run() {
                 try {
                     mUploadClient.newCall(mUploadRequest).execute();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mUploadBN.setEnabled(true);
+                            mUploadBN.setText("上传");
+                        }
+                    });
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
             }
         }).start();
     }
@@ -126,6 +142,8 @@ public class OkHttpActivity extends AppCompatActivity implements OnDownloadListe
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            mDownloadBN.setEnabled(true);
+                            mDownloadBN.setText("下载");
                             mIV.setImageBitmap(bitmap);
                         }
                     });
@@ -139,8 +157,8 @@ public class OkHttpActivity extends AppCompatActivity implements OnDownloadListe
 
     @Override
     public void onDownLoadProgress(ProgressInfo info) {
-        //注意info的url不包含参数键值对,打印查看
-        if (mDownloadUrl.equals(info.getUrl())) {
+        //注意info的url不包含参数键值对(所以contains比equal方法更合适),打印查看
+        if (mDownloadUrl.contains(info.getUrl())) {
             if (info.getPercentFloat() == 1) {
                 mDownloadBN.setText("下载完成   总尺寸" + String.format("Size : %s", FileUtil.getFileSize(info.getContentLength())));
                 mDownloadBN.setEnabled(true);
@@ -151,9 +169,19 @@ public class OkHttpActivity extends AppCompatActivity implements OnDownloadListe
     }
 
     @Override
+    public void onDownLoadGetContentLengthFail(ProgressInfo info) {
+        //注意info的url不包含参数键值对(所以contains比equal方法更合适),打印查看
+        if (mDownloadUrl.contains(info.getUrl())) {
+            //toast在发版时候应该去掉
+            Toast.makeText(this, "获取进度失败", Toast.LENGTH_SHORT).show();
+            mDownloadBN.setText("下载中...");
+        }
+    }
+
+    @Override
     public void onUpLoadProgress(ProgressInfo info) {
-        //注意info的url不包含参数键值对,打印查看
-        if (mUploadUrl.equals(info.getUrl())) {
+        //注意info的url不包含参数键值对(所以contains比equal方法更合适),打印查看
+        if (mUploadUrl.contains(info.getUrl())) {
             if (info.getPercentFloat() == 1) {
                 mUploadBN.setText("上传完成   总尺寸" + String.format("Size : %s", FileUtil.getFileSize(info.getContentLength())));
                 mUploadBN.setEnabled(true);
@@ -163,6 +191,15 @@ public class OkHttpActivity extends AppCompatActivity implements OnDownloadListe
         }
     }
 
+    @Override
+    public void onUploadGetContentLengthFail(ProgressInfo info) {
+        //注意info的url不包含参数键值对(所以contains比equal方法更合适),打印查看
+        if (mUploadUrl.contains(info.getUrl())) {
+            //toast在发版时候应该去掉
+            Toast.makeText(this, "获取上传进度失败", Toast.LENGTH_SHORT).show();
+            mUploadBN.setText("上传中...");
+        }
+    }
 
 
 }
