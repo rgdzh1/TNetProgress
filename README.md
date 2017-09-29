@@ -7,9 +7,10 @@
   Demo细致演示了使用方式.<br> 
   为了不添加冗余代码,进度数据变化体现在Button文本上,更直观是进度条.<br>
 ###  预览图:
-  <img width="350"  src="https://github.com/HoldMyOwn/TNetProgress/blob/master/preview/all.gif" /><br>
+  <img width="350"  src="https://github.com/HoldMyOwn/TNetProgress/blob/master/preview/tnetprogress-6.gif" /><br>
 ###  用法:
 <pre>
+
      //添加下载拦截器(this参数是实现下载进度接口的对象) 
      mDownClient = new OkHttpClient.Builder()
                 .addNetworkInterceptor(new DownloadInterceptor(this))
@@ -22,30 +23,46 @@
                 
  </pre>
 ###   事件回调:
+####  下载回调:
 <pre>
-    //info包含总长度、当前长度、进度百分比、请求url等信息
-    @Override
-    public void onDownLoadProgress(ProgressInfo info) {
-            if (info.getPercentFloat() == 1) {
-                mDownloadBN.setText("下载完成   总尺寸" + String.format("Size : %s", FileUtil.getFileSize(info.getContentLength())));
-                mDownloadBN.setEnabled(true);
-                return;
-            }
-            mDownloadBN.setText("下载:" + info.getPercentString());
-    }
-    @Override
-    public void onUpLoadProgress(ProgressInfo info) {
-            if (info.getPercentFloat() == 1) {
-                mUploadBN.setText("上传完成   总尺寸" + String.format("Size : %s", FileUtil.getFileSize(info.getContentLength())));
-                mUploadBN.setEnabled(true);
-                return;
-            }
-            mUploadBN.setText("上传:" + info.getPercentString());
-    }
+
+    /**
+     * 下载进度信息更新回调
+     *
+     * @param info 下载进度信息
+     */
+    void onDownLoadProgress(ProgressInfo info);
+
+    /**
+     * 获取下载字节总长度失败(如果返回数据gzip压缩,则无法获取总长度,可以通过添加请求头参数指定不压缩,避免)
+     *如果该方法回调,那么下载进度信息更新回调则不执行
+     * @param info 下载进度信息
+     */
+    void onDownLoadGetContentLengthFail(ProgressInfo info);
+    
+</pre>    
+####  上传回调:
+<pre>
+
+      /**
+     * 上传进度信息更新回调
+     *
+     * @param info 上传进度信息
+     */
+    void onUpLoadProgress(ProgressInfo info);
+
+    /**
+     * 获取上传字节总长度失败
+     * 如果该方法回调,那么上传进度信息更新回调则不执行
+     *
+     *
+     * @param info 上传进度信息
+     */
+    void onUploadGetContentLengthFail(ProgressInfo info);
     
 </pre>
 
 ###   具体细节用法,下载查看Demo
 ###   模板依赖:&nbsp;&nbsp;项目里面的tnetprogress模板(可更加灵活扩展)
-###   gradle依赖:&nbsp;&nbsp;&nbsp;compile&nbsp;'com.jkt:tnetprogress:1.0.2'
+###   gradle依赖:&nbsp;&nbsp;&nbsp;compile&nbsp;'com.jkt:tnetprogress:1.0.3'
 
