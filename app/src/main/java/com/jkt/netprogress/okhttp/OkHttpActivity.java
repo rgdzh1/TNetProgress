@@ -67,8 +67,8 @@ public class OkHttpActivity extends AppCompatActivity implements OnDownloadListe
         mUploadUrl = "http://v.polyv.net/uc/services/rest";
         mDownRequest = new Request.Builder()
                 .url(mDownloadUrl)
-                //下面注释要求不进行zip压缩
-//                .addHeader("Accept-Encoding","identity")
+                //下面语句要求不进行zip压缩
+                .addHeader("Accept-Encoding","identity")
                 .build();
         mDownClient = new OkHttpClient.Builder()
                 .addNetworkInterceptor(new DownloadInterceptor(this))
@@ -193,6 +193,7 @@ public class OkHttpActivity extends AppCompatActivity implements OnDownloadListe
 
     @Override
     public void onUploadGetContentLengthFail(ProgressInfo info) {
+
         //注意info的url不包含参数键值对(所以contains比equal方法更合适),打印查看
         if (mUploadUrl.contains(info.getUrl())) {
             //toast在发版时候应该去掉
