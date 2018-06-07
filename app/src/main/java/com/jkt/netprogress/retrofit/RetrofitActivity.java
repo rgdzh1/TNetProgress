@@ -37,8 +37,9 @@ public class RetrofitActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //无论下载上传家监听,都是配置OkHttp的拦截器,一个是new DownloadInterceptor(this)
-        //另一个是  new UploadInterceptor(this)
+        //无论下载上传家监听,都是配置OkHttp的拦截器,
+        //下载是 new DownloadInterceptor(this)
+        //上传是  new UploadInterceptor(this)
         initViews();
         initObjects();
         initListeners();
@@ -53,13 +54,7 @@ public class RetrofitActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void initObjects() {
-        //59行url对应图片获取长度失败,可以做失败测试
-        //失败原因服务器走了gzip压缩导致content-length为-1,会走长度获取失败回调
-        //避免压缩方法,request添加头信息.key=Accept-Encoding value=identity
-        //mDownloadUrl = "http://pic1.win4000.com/wallpaper/a/568cd27741af5.jpg";
-        //2017-9-29日期,mDownloadUrl长度可以获取成功,如果失败则回调长度失败回调并且终止进度回调
-        //如果mDownloadUrl在你测试情况下获取长度失败,你可以换取图片尝试获得相关进度信息.
-        mDownloadUrl = "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506664930570&di=6dace2ed4c25580c7446a4ef0807b928&imgtype=0&src=http%3A%2F%2Fpic1.win4000.com%2Fwallpaper%2F6%2F57eb31505b1fd.jpg";
+        mDownloadUrl = "http://pic1.win4000.com/wallpaper/a/568cd27741af5.jpg";
         mUploadUrl = "http://v.polyv.net/uc/services/rest";
     }
 
@@ -115,7 +110,7 @@ public class RetrofitActivity extends AppCompatActivity implements View.OnClickL
                             e.printStackTrace();
                         }
                     }
-                },  new DownloadInterceptor(this));
+                }, new DownloadInterceptor(this));
     }
 
     private void upload() {

@@ -34,7 +34,6 @@
     void onDownLoadProgress(ProgressInfo info);
 
     /**
-     * 获取下载字节总长度失败(如果返回数据gzip压缩,则无法获取总长度,可以通过添加请求头参数指定不压缩,避免)
      *如果该方法回调,那么下载进度信息更新回调则不执行
      * @param info 下载进度信息
      */
@@ -64,5 +63,5 @@
 
 ###   具体细节用法,下载查看Demo
 ###   模板依赖:&nbsp;&nbsp;项目里面的tnetprogress模板(可更加灵活扩展)
-###   gradle依赖:&nbsp;&nbsp;&nbsp;compile&nbsp;'com.jkt:tnetprogress:1.0.3'
+###   gradle依赖:&nbsp;&nbsp;&nbsp;compile&nbsp;'com.jkt:tnetprogress:1.0.4'
 
